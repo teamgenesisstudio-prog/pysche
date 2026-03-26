@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSYCHE — Know Yourself Before You Break</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #060608;
+    --deep: #0D0B14;
+    --void: #12101A;
+    --purple-dark: #1A1030;
+    --purple-mid: #2D1B69;
+    --purple: #6D28D9;
+    --violet: #8B5CF6;
+    --violet-light: #A78BFA;
+    --glow: #C4B5FD;
+    --white: #F5F3FF;
+    --muted: #6B7280;
+    --danger: #EF4444;
+    --warn: #F59E0B;
+    --good: #10B981;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--violet);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid rgba(139,92,246,0.4);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: all 0.15s ease;
+    mix-blend-mode: screen;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(to bottom, rgba(6,6,8,0.95), transparent);
+  }
+
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: var(--white);
+  }
+
+  .nav-logo span {
+    color: var(--violet);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 40px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--violet-light); }
+
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--purple);
+    color: var(--violet-light);
+    padding: 10px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all 0.3s;
+  }
+
+  .nav-cta:hover {
+    background: var(--purple);
+    color: var(--white);
+    box-shadow: 0 0 30px rgba(109,40,217,0.5);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 0 48px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(45,27,105,0.4) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(109,40,217,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 80% 20%, rgba(139,92,246,0.1) 0%, transparent 50%);
+  }
+
+  .hero-eye {
+    position: absolute;
+    right: 8%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 380px;
+    height: 380px;
+    opacity: 0.85;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(-50%) translateX(0px); }
+    50% { transform: translateY(-52%) translateX(-8px); }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 620px;
+  }
+
+  .hero-tag {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--violet);
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(64px, 8vw, 110px);
+    font-weight: 300;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    animation: fadeUp 1s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--violet-light);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-sub {
+    font-size: 13px;
+    line-height: 1.8;
+    color: rgba(245,243,255,0.5);
+    margin-bottom: 48px;
+    animation: fadeUp 1s ease 0.2s forwards;
+    opacity: 0;
+    max-width: 420px;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 16px;
+    animation: fadeUp 1s ease 0.4s forwards;
+    opacity: 0;
+  }
+
+  .btn-primary {
+    background: var(--purple);
+    color: var(--white);
+    border: none;
+    padding: 16px 36px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+  }
+
+  .btn-primary:hover::after { transform: translateX(100%); }
+  .btn-primary:hover { box-shadow: 0 0 40px rgba(109,40,217,0.6); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid rgba(107,114,128,0.3);
+    padding: 16px 36px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: all 0.3s;
+  }
+
+  .btn-ghost:hover { border-color: var(--violet); color: var(--violet-light); }
+
+  /* SCROLL INDICATOR */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--violet), transparent);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* SCORE SECTION */
+  .section {
+    padding: 120px 48px;
+    position: relative;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 24px;
+  }
+
+  /* DASHBOARD PREVIEW */
+  .dashboard-section {
+    padding: 80px 48px 120px;
+    background: linear-gradient(to bottom, transparent, rgba(13,11,20,0.8), transparent);
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+    max-width: 1100px;
+    margin: 60px auto 0;
+  }
+
+  .card {
+    background: rgba(13,11,20,0.8);
+    border: 1px solid rgba(139,92,246,0.12);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+    backdrop-filter: blur(10px);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--purple), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .card:hover::before { opacity: 1; }
+  .card:hover {
+    border-color: rgba(139,92,246,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(109,40,217,0.1);
+  }
+
+  .card-large {
+    grid-column: span 2;
+  }
+
+  .card-label {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* PSYCHE SCORE RING */
+  .score-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .score-ring {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+  }
+
+  .score-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .score-ring-track {
+    fill: none;
+    stroke: rgba(139,92,246,0.1);
+    stroke-width: 3;
+  }
+
+  .score-ring-fill {
+    fill: none;
+    stroke: url(#scoreGradient);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 70;
+    animation: ringFill 2s ease forwards;
+  }
+
+  @keyframes ringFill {
+    from { stroke-dashoffset: 283; }
+    to { stroke-dashoffset: 70; }
+  }
+
+  .score-number {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .score-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--violet-light);
+    line-height: 1;
+  }
+
+  .score-max {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .score-details { flex: 1; }
+
+  .score-status {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--warn);
+    margin-bottom: 8px;
+  }
+
+  .score-desc {
+    font-size: 11px;
+    line-height: 1.7;
+    color: rgba(245,243,255,0.45);
+  }
+
+  /* INSIGHT CARD */
+  .insight-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.6;
+    color: rgba(245,243,255,0.8);
+    margin-bottom: 20px;
+    border-left: 2px solid var(--purple);
+    padding-left: 20px;
+  }
+
+  .insight-trigger {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+
+  .insight-trigger span {
+    color: var(--violet-light);
+  }
+
+  /* METRICS */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    height: 100%;
+  }
+
+  .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .metric-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .metric-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  .metric-value.danger { color: var(--danger); }
+  .metric-value.warn { color: var(--warn); }
+  .metric-value.good { color: var(--good); }
+  .metric-value.neutral { color: var(--violet-light); }
+
+  .metric-bar {
+    height: 2px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 1px;
+    overflow: hidden;
+  }
+
+  .metric-bar-fill {
+    height: 100%;
+    border-radius: 1px;
+    animation: barFill 1.5s ease forwards;
+  }
+
+  @keyframes barFill {
+    from { width: 0; }
+  }
+
+  /* PATTERN BARS */
+  .pattern-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pattern-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .pattern-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .pattern-dot.red { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+  .pattern-dot.yellow { background: var(--warn); box-shadow: 0 0 8px var(--warn); }
+  .pattern-dot.green { background: var(--good); box-shadow: 0 0 8px var(--good); }
+
+  .pattern-text {
+    font-size: 11px;
+    line-height: 1.5;
+    color: rgba(245,243,255,0.6);
+    flex: 1;
+  }
+
+  .pattern-text strong {
+    color: var(--white);
+    font-weight: 400;
+  }
+
+  /* ACTION CARD */
+  .action-card {
+    background: linear-gradient(135deg, rgba(45,27,105,0.4), rgba(109,40,217,0.15));
+    border: 1px solid rgba(139,92,246,0.25);
+  }
+
+  .action-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 64px;
+    font-weight: 300;
+    color: rgba(139,92,246,0.2);
+    line-height: 1;
+    margin-bottom: -10px;
+  }
+
+  .action-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    line-height: 1.4;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+
+  .action-time {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--violet-light);
+  }
+
+  /* FEATURES */
+  .features-section {
+    padding: 80px 48px 120px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 60px;
+    border: 1px solid rgba(139,92,246,0.1);
+  }
+
+  .feature-item {
+    padding: 48px 40px;
+    border: 1px solid rgba(139,92,246,0.08);
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(109,40,217,0.08), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .feature-item:hover::after { opacity: 1; }
+  .feature-item:hover { border-color: rgba(139,92,246,0.25); }
+
+  .feature-icon {
+    font-size: 28px;
+    margin-bottom: 24px;
+    display: block;
+  }
+
+  .feature-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+
+  .feature-desc {
+    font-size: 11px;
+    line-height: 1.8;
+    color: rgba(245,243,255,0.4);
+  }
+
+  /* STATS */
+  .stats-section {
+    padding: 80px 48px;
+    background: rgba(13,11,20,0.5);
+    border-top: 1px solid rgba(139,92,246,0.08);
+    border-bottom: 1px solid rgba(139,92,246,0.08);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 48px;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 56px;
+    font-weight: 300;
+    color: var(--violet-light);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: 160px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(45,27,105,0.35) 0%, transparent 70%);
+  }
+
+  .cta-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(48px, 7vw, 96px);
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .cta-title em {
+    font-style: italic;
+    color: var(--violet-light);
+  }
+
+  .cta-sub {
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    position: relative;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 48px;
+    border-top: 1px solid rgba(139,92,246,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: rgba(245,243,255,0.3);
+  }
+
+  .footer-copy {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+
+  /* NOTIFICATION POPUP */
+  .notification {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    background: rgba(13,11,20,0.95);
+    border: 1px solid rgba(139,92,246,0.25);
+    padding: 20px 24px;
+    max-width: 300px;
+    z-index: 200;
+    backdrop-filter: blur(20px);
+    animation: slideIn 0.5s ease 2s both;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .notif-tag {
+    font-size: 8px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--violet);
+    margin-bottom: 8px;
+  }
+
+  .notif-text {
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(245,243,255,0.7);
+  }
+
+  .notif-text strong { color: var(--white); }
+
+  .notif-close {
+    position: absolute;
+    top: 12px; right: 16px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: none;
+    transition: color 0.2s;
+  }
+
+  .notif-close:hover { color: var(--white); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 2px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--purple-mid); }
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">PSY<span>C</span>HE</div>
+  <ul class="nav-links">
+    <li><a href="#dashboard">Dashboard</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#science">Science</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <button class="nav-cta">Early Access</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <!-- SVG EYE -->
+  <svg class="hero-eye" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="eyeGlow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#8B5CF6" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#8B5CF6" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="irisGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#1A1030"/>
+        <stop offset="40%" stop-color="#2D1B69"/>
+        <stop offset="100%" stop-color="#6D28D9"/>
+      </radialGradient>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Outer glow -->
+    <circle cx="200" cy="200" r="180" fill="url(#eyeGlow)"/>
+
+    <!-- Eye shape -->
+    <path d="M 40 200 Q 200 60 360 200 Q 200 340 40 200 Z" fill="rgba(13,11,20,0.9)" stroke="rgba(139,92,246,0.4)" stroke-width="1.5"/>
+
+    <!-- Iris -->
+    <circle cx="200" cy="200" r="72" fill="url(#irisGrad)"/>
+    <circle cx="200" cy="200" r="72" fill="none" stroke="rgba(139,92,246,0.5)" stroke-width="1"/>
+
+    <!-- Iris detail rings -->
+    <circle cx="200" cy="200" r="60" fill="none" stroke="rgba(139,92,246,0.2)" stroke-width="0.5"/>
+    <circle cx="200" cy="200" r="48" fill="none" stroke="rgba(139,92,246,0.15)" stroke-width="0.5"/>
+
+    <!-- Pupil -->
+    <circle cx="200" cy="200" r="28" fill="#060608"/>
+    <circle cx="200" cy="200" r="28" fill="none" stroke="rgba(139,92,246,0.6)" stroke-width="1" filter="url(#glow)"/>
+
+    <!-- Pupil glow dot -->
+    <circle cx="200" cy="200" r="6" fill="rgba(139,92,246,0.8)" filter="url(#glow)"/>
+
+    <!-- Circuit lines emanating from iris -->
+    <line x1="200" y1="128" x2="200" y2="80" stroke="rgba(139,92,246,0.25)" stroke-width="0.8"/>
+    <line x1="200" y1="272" x2="200" y2="320" stroke="rgba(139,92,246,0.25)" stroke-width="0.8"/>
+    <line x1="128" y1="200" x2="80" y2="200" stroke="rgba(139,92,246,0.25)" stroke-width="0.8"/>
+    <line x1="272" y1="200" x2="320" y2="200" stroke="rgba(139,92,246,0.25)" stroke-width="0.8"/>
+
+    <!-- Diagonal circuit -->
+    <line x1="150" y1="150" x2="120" y2="120" stroke="rgba(139,92,246,0.2)" stroke-width="0.8"/>
+    <line x1="250" y1="150" x2="280" y2="120" stroke="rgba(139,92,246,0.2)" stroke-width="0.8"/>
+    <line x1="150" y1="250" x2="120" y2="280" stroke="rgba(139,92,246,0.2)" stroke-width="0.8"/>
+    <line x1="250" y1="250" x2="280" y2="280" stroke="rgba(139,92,246,0.2)" stroke-width="0.8"/>
+
+    <!-- Corner dots -->
+    <circle cx="80" cy="200" r="2" fill="rgba(139,92,246,0.5)"/>
+    <circle cx="320" cy="200" r="2" fill="rgba(139,92,246,0.5)"/>
+    <circle cx="120" cy="120" r="2" fill="rgba(139,92,246,0.3)"/>
+    <circle cx="280" cy="120" r="2" fill="rgba(139,92,246,0.3)"/>
+
+    <!-- Eye lashes/lids detail -->
+    <path d="M 40 200 Q 200 60 360 200" fill="none" stroke="rgba(139,92,246,0.15)" stroke-width="0.5"/>
+    <path d="M 40 200 Q 200 340 360 200" fill="none" stroke="rgba(139,92,246,0.15)" stroke-width="0.5"/>
+
+    <!-- Scan line animation -->
+    <line x1="40" y1="200" x2="360" y2="200" stroke="rgba(139,92,246,0.1)" stroke-width="0.5">
+      <animate attributeName="y1" values="140;260;140" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="y2" values="140;260;140" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-opacity" values="0.1;0.3;0.1" dur="3s" repeatCount="indefinite"/>
+    </line>
+  </svg>
+
+  <div class="hero-content">
+    <div class="hero-tag">AI Mental Intelligence</div>
+    <h1 class="hero-title">Know<br/><em>yourself</em><br/>before you<br/>break.</h1>
+    <p class="hero-sub">PSYCHE runs silently in the background and reads your behavioral patterns — detecting burnout, anxiety, and depression weeks before you feel it.</p>
+    <div class="hero-buttons">
+      <button class="btn-primary">Download PSYCHE</button>
+      <button class="btn-ghost">See How It Works</button>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="dashboard-section" id="dashboard">
+  <div style="text-align:center; margin-bottom: 16px;">
+    <div class="section-label">Live Dashboard</div>
+    <h2 class="section-title">Your mind.<br/>Decoded.</h2>
+  </div>
+
+  <div class="dashboard-grid">
+    <defs>
+      <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#6D28D9"/>
+        <stop offset="100%" stop-color="#A78BFA"/>
+      </linearGradient>
+    </defs>
+
+    <!-- PSYCHE Score -->
+    <div class="card card-large">
+      <div class="card-label">Psyche Score — Today</div>
+      <div class="score-container">
+        <div class="score-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <defs>
+              <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#6D28D9"/>
+                <stop offset="100%" stop-color="#A78BFA"/>
+              </linearGradient>
+            </defs>
+            <circle class="score-ring-track" cx="60" cy="60" r="45"/>
+            <circle class="score-ring-fill" cx="60" cy="60" r="45"/>
+          </svg>
+          <div class="score-number">
+            <span class="score-value">75</span>
+            <span class="score-max">/100</span>
+          </div>
+        </div>
+        <div class="score-details">
+          <div class="score-status">Early Burnout</div>
+          <p class="score-desc">Your behavioral patterns over the last 14 days indicate stress accumulation. Social withdrawal detected. Sleep cycle shifted 2.3 hours. Action recommended within 48 hours.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="card">
+      <div class="card-label">Vitals</div>
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Sleep Shift</div>
+          <div class="metric-value warn">+2.3h</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width:65%; background: var(--warn);"></div></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Social Drop</div>
+          <div class="metric-value danger">−60%</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width:60%; background: var(--danger);"></div></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Screen Time</div>
+          <div class="metric-value warn">8.4h</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width:84%; background: var(--warn);"></div></div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Movement</div>
+          <div class="metric-value good">+12%</div>
+          <div class="metric-bar"><div class="metric-bar-fill" style="width:52%; background: var(--good);"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's Insight -->
+    <div class="card card-large">
+      <div class="card-label">Today's Insight</div>
+      <div class="insight-text">"Your anxiety spikes every Sunday night. It started correlating with your Instagram usage 3 weeks ago — averaging 94 minutes before sleep."</div>
+      <div class="insight-trigger">Trigger identified: <span>Late night social media · Sleep disruption · Pattern: 21 days</span></div>
+    </div>
+
+    <!-- Patterns -->
+    <div class="card">
+      <div class="card-label">Detected Patterns</div>
+      <div class="pattern-list">
+        <div class="pattern-item">
+          <div class="pattern-dot red"></div>
+          <div class="pattern-text"><strong>Social withdrawal</strong> — haven't texted 3 close contacts in 11+ days</div>
+        </div>
+        <div class="pattern-item">
+          <div class="pattern-dot yellow"></div>
+          <div class="pattern-text"><strong>Sleep fragmentation</strong> — phone checked avg 3.2x per night</div>
+        </div>
+        <div class="pattern-item">
+          <div class="pattern-dot green"></div>
+          <div class="pattern-text"><strong>Exercise maintained</strong> — location data confirms gym 4x this week</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action -->
+    <div class="card action-card">
+      <div class="card-label">Action Right Now</div>
+      <div class="action-number">01</div>
+      <div class="action-text">Text one person you haven't spoken to in 2 weeks. One message. Right now.</div>
+      <div class="action-time">⏱ Takes 30 seconds · High impact</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="section-label">Core Features</div>
+  <h2 class="section-title">Six ways PSYCHE<br/>sees what you can't.</h2>
+
+  <div class="features-grid">
+    <div class="feature-item">
+      <span class="feature-icon">👁️</span>
+      <div class="feature-name">Silent Observation</div>
+      <div class="feature-desc">Runs completely in the background. No check-ins. No questionnaires. It watches behavioral patterns — not your content.</div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">🧬</span>
+      <div class="feature-name">Pattern Decoding</div>
+      <div class="feature-desc">Connects dots across sleep, social, movement, and screen time to identify root causes — not symptoms.</div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">⚡</span>
+      <div class="feature-name">Early Warning</div>
+      <div class="feature-desc">Detects burnout and depressive episodes 2–4 weeks before you feel them. Acts when intervention is still easy.</div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">🎯</span>
+      <div class="feature-name">Micro-Actions</div>
+      <div class="feature-desc">One small, specific action at a time. Not 30-minute meditation sessions. Real changes in under 5 minutes.</div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">🔮</span>
+      <div class="feature-name">Predictive Engine</div>
+      <div class="feature-desc">After 90 days, PSYCHE predicts your bad mental health weeks before they arrive. Prevention, not treatment.</div>
+    </div>
+    <div class="feature-item">
+      <span class="feature-icon">🔐</span>
+      <div class="feature-name">Zero Privacy Risk</div>
+      <div class="feature-desc">Never reads messages. Never records audio. All data encrypted on your device. Patterns only. Secrets never.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div>
+      <div class="stat-number">1B+</div>
+      <div class="stat-label">People with untreated mental health issues</div>
+    </div>
+    <div>
+      <div class="stat-number">$150</div>
+      <div class="stat-label">Average therapy session cost</div>
+    </div>
+    <div>
+      <div class="stat-number">$10</div>
+      <div class="stat-label">PSYCHE per month</div>
+    </div>
+    <div>
+      <div class="stat-number">3wk</div>
+      <div class="stat-label">Average early detection lead time</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-bg"></div>
+  <h2 class="cta-title">Your mind has<br/><em>patterns.</em><br/>We read them.</h2>
+  <p class="cta-sub">Join 50,000+ people on the early access waitlist</p>
+  <div class="cta-buttons">
+    <button class="btn-primary">Get Early Access</button>
+    <button class="btn-ghost">For Enterprise</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">PSYCHE</div>
+  <div class="footer-copy">© 2025 Psyche AI Inc. — Know yourself before you break.</div>
+</footer>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification">
+  <button class="notif-close" onclick="document.getElementById('notification').style.display='none'">×</button>
+  <div class="notif-tag">⚠ Psyche Alert</div>
+  <div class="notif-text"><strong>Pattern detected:</strong> You've been scrolling for 47 minutes. Your sleep window opens in 23 minutes. Put the phone down.</div>
+</div>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursor.style.left = mouseX - 4 + 'px';
+    cursor.style.top = mouseY - 4 + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX - 16) * 0.12;
+    ringY += (mouseY - ringY - 16) * 0.12;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Hover effects
+  document.querySelectorAll('button, a').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'scale(3)';
+      ring.style.transform = 'scale(1.5)';
+      ring.style.borderColor = 'rgba(139,92,246,0.8)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'scale(1)';
+      ring.style.transform = 'scale(1)';
+      ring.style.borderColor = 'rgba(139,92,246,0.4)';
+    });
+  });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.card, .feature-item, .stat-number').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+
+  // Score counter animation
+  function animateScore() {
+    const scoreEl = document.querySelector('.score-value');
+    let count = 0;
+    const target = 75;
+    const timer = setInterval(() => {
+      count += 2;
+      scoreEl.textContent = count;
+      if (count >= target) { scoreEl.textContent = target; clearInterval(timer); }
+    }, 30);
+  }
+
+  const scoreObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) animateScore(); });
+  });
+  scoreObserver.observe(document.querySelector('.score-ring'));
+</script>
+</body>
+</html>
